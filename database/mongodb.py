@@ -31,7 +31,7 @@ def create_user(username: str, password: str, email: str = None, attrDict: dict 
         attrDict: Dicionario de atributos. -> Opcional
     
     Retornos:
-        ID do usuario para identificação posterior
+        ID do usuario para identificação posterior. OBS: se retornar 'None' significa que não foi possivel criar
     """
     user_document = {
         'username': username,
@@ -42,11 +42,12 @@ def create_user(username: str, password: str, email: str = None, attrDict: dict 
     for attr, value in attrDict:
         user_document[attr] = value
     
-    try:
-        user = user_collection.insert_one(user_document)
+    
+    user = user_collection.insert_one(user_document)
+    user_id = None
+
+    if user:
         user_id = user.inserted_id
-    except Exception as error:
-        raise error
 
     return user_id
 
