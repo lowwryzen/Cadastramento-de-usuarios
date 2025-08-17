@@ -1,10 +1,12 @@
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
+import sys
 
 load_dotenv()
 
 DB_URI = os.getenv('DB_URI')
+print(DB_URI)
 client = MongoClient(DB_URI)
 
 DB_NAME = os.getenv('DB_NAME')
@@ -12,14 +14,10 @@ database = client.get_database(DB_NAME)
 
 USER_COLLECTION_NAME = os.getenv('USER_COLLECTION_NAME')
 
-if not database.get_collection(USER_COLLECTION_NAME):
-    try:
-        user_collection = database.create_collection(USER_COLLECTION_NAME)
-    except Exception as error:
-        raise error
-
-else:
+try:
     user_collection = database.get_collection(USER_COLLECTION_NAME)
+except:
+    user_collection = database.create_collection(USER_COLLECTION_NAME)
 
 def create_user(username: str, password: str, email: str = None, attrDict: dict = None):
     """Cria um usuario apartir de alguns dados e o retorna da função.
@@ -33,28 +31,34 @@ def create_user(username: str, password: str, email: str = None, attrDict: dict 
     Retornos:
         ID do usuario para identificação posterior. OBS: se retornar 'None' significa que não foi possivel criar
     """
+
+    result = {
+        'id': None,
+        'error': None
+    }
+
     user_document = {
         'username': username,
         'password': password,
-        'email': email,
+        'email': email
     }
 
-    for attr, value in attrDict:
+    for attr, value in attrDict.items():
         user_document[attr] = value
-    
-    
-    user = user_collection.insert_one(user_document)
-    user_id = None
 
-    if user:
-        user_id = user.inserted_id
+    error_msg = "Houve um erro ao tentar criar o usuario: "
 
-    return user_id
+    find_user_result = user_collection.find_one({'username': username})
+    if find_user_result:
+        result['id'] = find_user_result.get('_id')
+        result['error'] = f"O usuario '{username}' já existe no MongoDB!"
+    else:
+        try:
+            insert_result = user_collection.insert_one(user_document)
+            if insert_result.inserted_id:
+                return insert_result.inserted_id
+        except Exception as error:
+            result['error'] = error
 
-joao = create_user(
-    username='joao', 
-    password='password@123456', 
-    email='abc@example.com', 
-    attrDict={
-        'sobre_mim': 'Me chamo Joao Ferreiro, tenho 19 anos e trabalho com programação. Atualmente estudo: python, javascript, c, c++, c#, java ... etc'
-})
+    return result
+
