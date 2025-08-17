@@ -62,3 +62,13 @@ def create_user(username: str, password: str, email: str = None, attrDict: dict 
 
     return result
 
+def find_user(username: str):
+    """Tenta encontrar o usuario na na coleção de usuarios da Database do MongoDB
+
+    Argumentos:
+        username(texto): Nome do usuario
+    
+    Retornos:
+        Dicionario contendo as informações do usuario | Ou 'None'. Simbolizando que não foi possivel encontrar o usuario 'x'.
+    """
+    return user_collection.find_one({'username': username})
