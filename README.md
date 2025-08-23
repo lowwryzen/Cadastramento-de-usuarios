@@ -39,10 +39,13 @@ projeto
 
 ## Como usar:
 
-- clone o repositório usando: `git clone https://github.com/lowwryzen/Cadastramento-de-usuarios.git`
+- clone o repositório usando:
+`git clone https://github.com/lowwryzen/Cadastramento-de-usuarios.git`
 
 <br>
 
 - crie um arquivo `.env` com as seguintes informações:
-`DB_URI = "<seu_database_URI>"`
-`DB_NAME = "<seu_database_NAME>"`
+```
+DB_URI = "<seu_database_URI>"
+DB_NAME = "<seu_database_NAME>"
+```
